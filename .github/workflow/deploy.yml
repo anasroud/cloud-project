@@ -3,7 +3,7 @@ name: Deploy Vite App to GitHub Pages
 on:
   push:
     branches:
-      - main  # or 'master' — change this if your default branch is different
+      - main
 
 permissions:
   contents: write
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -26,6 +26,9 @@ jobs:
 
       - name: Build App
         run: npm run build
+
+      - name: Add CNAME file for custom domain
+        run: echo 'cloud.anasroud.com' > dist/CNAME
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
