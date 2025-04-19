@@ -9,7 +9,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  base: '/cloud-project/',
+  base: 'cloud.anasroud.com',
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
