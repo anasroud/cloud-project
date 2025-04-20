@@ -203,11 +203,11 @@ export default function ProductsPage() {
                 <div className="flex justify-between">
                   <div className="flex items-center">
                     <DollarSign className="h-4 w-4" />
-                    <span>{priceRange[0]}</span>
+                    <span>{Math.min(...priceRange)}</span>
                   </div>
                   <div className="flex items-center">
                     <DollarSign className="h-4 w-4" />
-                    <span>{priceRange[1]}</span>
+                    <span>{Math.max(...priceRange)}</span>
                   </div>
                 </div>
               </div>
@@ -298,11 +298,11 @@ export default function ProductsPage() {
                       <div className="flex justify-between">
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4" />
-                          <span>{priceRange[0]}</span>
+                          <span>{Math.min(...priceRange)}</span>
                         </div>
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4" />
-                          <span>{priceRange[1]}</span>
+                          <span>{Math.max(...priceRange)}</span>
                         </div>
                       </div>
                     </div>
@@ -412,7 +412,7 @@ export default function ProductsPage() {
                   variant="secondary"
                   className="flex items-center gap-1"
                 >
-                  Price: ${priceRange[0]} - ${priceRange[1]}
+                  Price: ${Math.min(...priceRange)} - ${Math.max(...priceRange)}
                   <X 
                     className="h-3 w-3 cursor-pointer" 
                     onClick={() => setPriceRange([0, 1500])}

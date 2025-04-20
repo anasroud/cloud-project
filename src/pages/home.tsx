@@ -58,13 +58,18 @@ export default function HomePage() {
               </Button>
             </form>
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" asChild>
+              <Button size="lg" asChild className="opacity-100">
                 <a href="#featured">
                   Shop Now
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-black" asChild>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-white text-white bg-black/10" 
+                asChild
+              >
                 <a href="#categories">
                   Browse Categories
                 </a>
@@ -182,7 +187,7 @@ export default function HomePage() {
                   <p className="text-white/80 mb-4">{category.count} Products</p>
                   <Button 
                     variant="outline" 
-                    className="border-white text-white hover:bg-white hover:text-black"
+                    className="border-white text-white bg-black/30 hover:bg-black/40 opacity-100"
                     asChild
                   >
                     <a href={`/products?category=${category.name.toLowerCase()}`}>
@@ -221,7 +226,7 @@ export default function HomePage() {
           </div>
           
           <div className="text-center mt-10">
-            <Button size="lg" asChild>
+            <Button size="lg" asChild className="opacity-100">
               <a href="/products">
                 View All Products
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -255,7 +260,7 @@ export default function HomePage() {
               <Button 
                 type="submit" 
                 variant="secondary"
-                className="shrink-0"
+                className="shrink-0 opacity-100"
               >
                 Subscribe
               </Button>

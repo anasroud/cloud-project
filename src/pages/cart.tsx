@@ -20,7 +20,6 @@ export default function CartPage() {
 
   const handlePromoCode = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate promo code application
     if (promoCode.trim()) {
       setPromoCodeApplied(true);
     }
