@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { mockProducts } from "@/data/mock-products";
-import { filterProducts } from "@/lib/utils";
+import { fetchProducts, searchProducts } from "@/lib/api";
 import ProductCard from "@/components/product/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,11 +18,14 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
+import { Product } from "@/types";
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState(mockProducts);
-  const [filteredProducts, setFilteredProducts] = useState(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   
   // Get filter values from URL params
@@ -41,32 +43,75 @@ export default function ProductsPage() {
   const [availableOnly, setAvailableOnly] = useState(false);
   
   // Get unique categories
-  const categories = [...new Set(mockProducts.map(product => product.category))];
+  const categories = [...new Set(products.map(product => product.category))];
+  
+  // Fetch products
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        let result;
+        if (searchParam) {
+          result = await searchProducts(searchParam);
+        } else {
+          result = await fetchProducts();
+        }
+        
+        setProducts(result);
+        setFilteredProducts(result);
+      } catch (err) {
+        setError('Failed to load products');
+        console.error('Error loading products:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadProducts();
+  }, [searchParam]);
   
   // Apply filters
   useEffect(() => {
-    // Get filters from URL
-    const filters = {
-      category: searchParams.get("category") || "",
-      search: searchParams.get("search") || "",
-      sort: searchParams.get("sort") || "featured",
-      minPrice: searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : undefined,
-      maxPrice: searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : undefined,
-    };
+    let filtered = [...products];
     
-    // Apply filters to products
-    let result = filterProducts(products, filters);
-    
-    // Additional filter for in-stock items if checked
-    if (availableOnly) {
-      result = result.filter(product => product.stock > 0);
+    // Category filter
+    if (category) {
+      filtered = filtered.filter(product => 
+        product.category.toLowerCase() === category.toLowerCase()
+      );
     }
     
-    setFilteredProducts(result);
-  }, [searchParams, products, availableOnly]);
+    // Price range filter
+    filtered = filtered.filter(product => 
+      product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+    
+    // Availability filter
+    if (availableOnly) {
+      filtered = filtered.filter(product => product.stock > 0);
+    }
+    
+    // Sort
+    switch (sort) {
+      case 'price-asc':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'rating-desc':
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
+      // Add other sort cases as needed
+    }
+    
+    setFilteredProducts(filtered);
+  }, [products, category, priceRange, availableOnly, sort]);
   
   // Update URL params when filters change
-  const applyFilters = () => {
+  const applyFilters = async () => {
     const params = new URLSearchParams();
     
     if (category) params.set("category", category);
@@ -76,6 +121,19 @@ export default function ProductsPage() {
     if (priceRange[1] < 1500) params.set("maxPrice", priceRange[1].toString());
     
     setSearchParams(params);
+    
+    if (searchQuery) {
+      try {
+        setLoading(true);
+        const results = await searchProducts(searchQuery);
+        setProducts(results);
+      } catch (err) {
+        setError('Failed to search products');
+        console.error('Error searching products:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
   
   // Clear all filters
@@ -87,6 +145,15 @@ export default function ProductsPage() {
     setAvailableOnly(false);
     setSearchParams({});
   };
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-destructive mb-4">{error}</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -154,7 +221,7 @@ export default function ProductsPage() {
                 <Checkbox 
                   id="availability" 
                   checked={availableOnly}
-                  onCheckedChange={(checked) => setAvailableOnly(checked as boolean)}
+                  onCheckedChange={(checked) => setAvailableOnly(!!checked)}
                 />
                 <Label htmlFor="availability">In Stock Only</Label>
               </div>
@@ -249,7 +316,7 @@ export default function ProductsPage() {
                       <Checkbox 
                         id="availability-mobile" 
                         checked={availableOnly}
-                        onCheckedChange={(checked) => setAvailableOnly(checked as boolean)}
+                        onCheckedChange={(checked) => setAvailableOnly(!!checked)}
                       />
                       <Label htmlFor="availability-mobile">In Stock Only</Label>
                     </div>
@@ -427,7 +494,17 @@ export default function ProductsPage() {
             </div>
           </div>
           
-          {filteredProducts.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="bg-muted aspect-square rounded-lg mb-4"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <motion.div 
               className="text-center py-12 bg-muted rounded-lg"
               initial={{ opacity: 0 }}

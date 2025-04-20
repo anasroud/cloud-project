@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       // Mock successful login for demo
       if (email && password) {
         const mockUser: User = {
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email,
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
         };
-        
+
         setUser(mockUser);
         localStorage.setItem("user", JSON.stringify(mockUser));
         toast.success("Login successful");
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       if (name && email && password) {
         const mockUser: User = {
           id: "user-" + Date.now(),
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email,
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
         };
-        
+
         setUser(mockUser);
         localStorage.setItem("user", JSON.stringify(mockUser));
         toast.success("Registration successful");

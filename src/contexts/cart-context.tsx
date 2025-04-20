@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { CartItem, Product } from "@/types";
 import { toast } from "sonner";
+import { getCart, updateCart } from "@/lib/api";
+import { useAuth } from "./auth-context";
 
 interface CartContextType {
   items: CartItem[];
@@ -15,10 +17,8 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
+  const [items, setItems] = useState<CartItem[]>([]);
+  const { user, getAccessToken } = useAuth();
 
   // Calculate totals
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
@@ -27,61 +27,76 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     0
   );
 
-  // Save cart to localStorage whenever it changes
+  // Fetch cart data when user logs in
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items));
-  }, [items]);
+    async function fetchCart() {
+      if (user) {
+        try {
+          const token = await getAccessToken();
+          const cartData = await getCart(token);
+          setItems(cartData.items);
+        } catch (error) {
+          console.error('Failed to fetch cart:', error);
+          toast.error('Failed to load cart data');
+        }
+      } else {
+        setItems([]);
+      }
+    }
+    fetchCart();
+  }, [user, getAccessToken]);
+
+  // Update cart on server
+  const syncCart = async (newItems: CartItem[]) => {
+    if (user) {
+      try {
+        const token = await getAccessToken();
+        await updateCart(token, newItems);
+      } catch (error) {
+        console.error('Failed to sync cart:', error);
+        toast.error('Failed to update cart');
+      }
+    }
+  };
 
   // Add item to cart
-  const addItem = (product: Product, quantity: number = 1) => {
-    setItems((prevItems) => {
-      // Check if item already exists in cart
-      const existingItemIndex = prevItems.findIndex(
-        (item) => item.id === product.id
-      );
+  const addItem = async (product: Product, quantity: number = 1) => {
+    const newItems = [...items];
+    const existingItemIndex = newItems.findIndex(item => item.id === product.id);
 
-      if (existingItemIndex > -1) {
-        // Update quantity if item exists
-        const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex] = {
-          ...updatedItems[existingItemIndex],
-          quantity: updatedItems[existingItemIndex].quantity + quantity,
-        };
-        toast.success(`Updated ${product.name} quantity in cart`);
-        return updatedItems;
-      } else {
-        // Add new item if it doesn't exist
-        toast.success(`Added ${product.name} to cart`);
-        return [...prevItems, { ...product, quantity }];
-      }
-    });
+    if (existingItemIndex > -1) {
+      newItems[existingItemIndex].quantity += quantity;
+    } else {
+      newItems.push({ ...product, quantity });
+    }
+
+    setItems(newItems);
+    await syncCart(newItems);
+    toast.success(`Added ${product.name} to cart`);
   };
 
   // Remove item from cart
-  const removeItem = (productId: string) => {
-    setItems((prevItems) => {
-      const updatedItems = prevItems.filter((item) => item.id !== productId);
-      toast.info("Item removed from cart");
-      return updatedItems;
-    });
+  const removeItem = async (productId: string) => {
+    const newItems = items.filter(item => item.id !== productId);
+    setItems(newItems);
+    await syncCart(newItems);
+    toast.info('Item removed from cart');
   };
 
   // Update item quantity
-  const updateQuantity = (productId: string, quantity: number) => {
-    setItems((prevItems) => {
-      return prevItems.map((item) => {
-        if (item.id === productId) {
-          return { ...item, quantity };
-        }
-        return item;
-      });
-    });
+  const updateQuantity = async (productId: string, quantity: number) => {
+    const newItems = items.map(item =>
+      item.id === productId ? { ...item, quantity } : item
+    );
+    setItems(newItems);
+    await syncCart(newItems);
   };
 
   // Clear cart
-  const clearCart = () => {
+  const clearCart = async () => {
     setItems([]);
-    toast.info("Cart cleared");
+    await syncCart([]);
+    toast.info('Cart cleared');
   };
 
   return (
