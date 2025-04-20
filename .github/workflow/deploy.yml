@@ -1,3 +1,4 @@
+# .github/workflows/deploy.yml
 name: Deploy Vite App to GitHub Pages
 
 on:
@@ -13,22 +14,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install deps and build
-        run: |
-          npm ci
-          npm run build
-          echo 'cloud.anasroud.com' > dist/CNAME
+      - run: npm ci
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - run: npm run build
+
+      - run: echo 'cloud.anasroud.com' > dist/CNAME
+
+      - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
