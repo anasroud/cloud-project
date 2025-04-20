@@ -9,7 +9,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  base: '/',
+  base: './',
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
