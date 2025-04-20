@@ -98,13 +98,13 @@ export default function CartPage() {
                 </CardFooter>
               </Card>
             </div>
-            
+
             {/* Order Summary */}
             <div>
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-                  
+
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>

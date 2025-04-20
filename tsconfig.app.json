@@ -23,7 +23,6 @@
     "forceConsistentCasingInFileNames": true,
 
     /* for ShadCN */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
