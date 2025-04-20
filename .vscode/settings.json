@@ -1,0 +1,20 @@
+{
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "editor.tabSize": 2,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "workbench.colorCustomizations": {
+    // "titleBar.activeBackground": "#FFD710",
+    // "titleBar.activeForeground": "#000"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "cSpell.words": ["anasalroud", "grecaptcha", "Roud", "Saira", "saria"]
+}
