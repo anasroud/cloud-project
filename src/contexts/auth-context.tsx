@@ -39,7 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: "user-1",
           name: email.split("@")[0],
           email,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
         };
 
         setUser(mockUser);
@@ -74,7 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: "user-" + Date.now(),
           name,
           email,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
         };
 
         setUser(mockUser);

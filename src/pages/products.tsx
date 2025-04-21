@@ -1,17 +1,23 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { fetchProducts, searchProducts } from "@/lib/api";
+import { getProducts, searchProducts } from "@/lib/api";
 import ProductCard from "@/components/product/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, Filter, X, Search, DollarSign } from "lucide-react";
+import { Filter, X, Search, DollarSign } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -27,115 +33,120 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  
+
   // Get filter values from URL params
   const categoryParam = searchParams.get("category") || "";
   const searchParam = searchParams.get("search") || "";
   const sortParam = searchParams.get("sort") || "featured";
-  const minPriceParam = searchParams.get("minPrice") ? Math.max(0, Number(searchParams.get("minPrice"))) : 0;
-  const maxPriceParam = searchParams.get("maxPrice") ? Math.min(1500, Number(searchParams.get("maxPrice"))) : 1500;
-  
+  const minPriceParam = searchParams.get("minPrice")
+    ? Math.max(0, Number(searchParams.get("minPrice")))
+    : 0;
+  const maxPriceParam = searchParams.get("maxPrice")
+    ? Math.min(1500, Number(searchParams.get("maxPrice")))
+    : 1500;
+
   // Local state for form inputs
   const [category, setCategory] = useState(categoryParam);
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const [sort, setSort] = useState(sortParam);
-  const [priceRange, setPriceRange] = useState<[number, number]>([minPriceParam, maxPriceParam]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    minPriceParam,
+    maxPriceParam,
+  ]);
   const [availableOnly, setAvailableOnly] = useState(false);
-  
+
   // Get unique categories
-  const categories = [...new Set(products.map(product => product.category))];
-  
+  const categories = [...new Set(products.map((product) => product.category))];
+
   // Fetch products
   useEffect(() => {
     async function loadProducts() {
       try {
         setLoading(true);
         setError(null);
-        
+
         let result;
         if (searchParam) {
           result = await searchProducts(searchParam);
         } else {
-          result = await fetchProducts();
+          result = await getProducts();
         }
-        
+
         setProducts(result);
         setFilteredProducts(result);
       } catch (err) {
-        setError('Failed to load products');
-        console.error('Error loading products:', err);
+        setError("Failed to load products");
+        console.error("Error loading products:", err);
       } finally {
         setLoading(false);
       }
     }
-    
+
     loadProducts();
   }, [searchParam]);
-  
+
   // Apply filters
   useEffect(() => {
     let filtered = [...products];
-    
+
     // Category filter
     if (category) {
-      filtered = filtered.filter(product => 
-        product.category.toLowerCase() === category.toLowerCase()
+      filtered = filtered.filter(
+        (product) => product.category.toLowerCase() === category.toLowerCase()
       );
     }
-    
+
     // Price range filter
-    filtered = filtered.filter(product => 
-      product.price >= priceRange[0] && product.price <= priceRange[1]
+    filtered = filtered.filter(
+      (product) =>
+        product.price >= priceRange[0] && product.price <= priceRange[1]
     );
-    
+
     // Availability filter
     if (availableOnly) {
-      filtered = filtered.filter(product => product.stock > 0);
+      filtered = filtered.filter((product) => product.quantity > 0);
     }
-    
+
     // Sort
     switch (sort) {
-      case 'price-asc':
+      case "price-asc":
         filtered.sort((a, b) => a.price - b.price);
         break;
-      case 'price-desc':
+      case "price-desc":
         filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating-desc':
-        filtered.sort((a, b) => b.rating - a.rating);
         break;
       // Add other sort cases as needed
     }
-    
+
     setFilteredProducts(filtered);
   }, [products, category, priceRange, availableOnly, sort]);
-  
+
   // Update URL params when filters change
   const applyFilters = async () => {
     const params = new URLSearchParams();
-    
+
     if (category) params.set("category", category);
     if (searchQuery) params.set("search", searchQuery);
     if (sort !== "featured") params.set("sort", sort);
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
     if (priceRange[1] < 1500) params.set("maxPrice", priceRange[1].toString());
-    
+
     setSearchParams(params);
-    
+
     if (searchQuery) {
       try {
         setLoading(true);
         const results = await searchProducts(searchQuery);
         setProducts(results);
       } catch (err) {
-        setError('Failed to search products');
-        console.error('Error searching products:', err);
+        setError("Failed to search products");
+        console.error("Error searching products:", err);
       } finally {
         setLoading(false);
       }
     }
   };
-  
+
   // Clear all filters
   const clearFilters = () => {
     setCategory("");
@@ -148,11 +159,11 @@ export default function ProductsPage() {
 
   // Format price for display
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(price);
   };
 
@@ -178,7 +189,7 @@ export default function ProductsPage() {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar Filters (Desktop) */}
         <aside className="w-full md:w-64 hidden md:block space-y-6">
-          <motion.div 
+          <motion.div
             className="space-y-6"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -187,8 +198,10 @@ export default function ProductsPage() {
             <div>
               <h3 className="font-semibold text-lg mb-3">Categories</h3>
               <div className="space-y-2">
-                <div 
-                  className={`cursor-pointer hover:text-primary transition-colors ${category === "" ? "text-primary font-medium" : ""}`}
+                <div
+                  className={`cursor-pointer hover:text-primary transition-colors ${
+                    category === "" ? "text-primary font-medium" : ""
+                  }`}
                   onClick={() => setCategory("")}
                 >
                   All Categories
@@ -196,7 +209,11 @@ export default function ProductsPage() {
                 {categories.map((cat) => (
                   <div
                     key={cat}
-                    className={`cursor-pointer hover:text-primary transition-colors ${category === cat.toLowerCase() ? "text-primary font-medium" : ""}`}
+                    className={`cursor-pointer hover:text-primary transition-colors ${
+                      category === cat.toLowerCase()
+                        ? "text-primary font-medium"
+                        : ""
+                    }`}
                     onClick={() => setCategory(cat.toLowerCase())}
                   >
                     {cat}
@@ -204,9 +221,9 @@ export default function ProductsPage() {
                 ))}
               </div>
             </div>
-            
+
             <Separator />
-            
+
             <div>
               <h3 className="font-semibold text-lg mb-3">Price Range</h3>
               <div className="px-2">
@@ -230,27 +247,27 @@ export default function ProductsPage() {
                 </div>
               </div>
             </div>
-            
+
             <Separator />
-            
+
             <div>
               <h3 className="font-semibold text-lg mb-3">Availability</h3>
               <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="availability" 
+                <Checkbox
+                  id="availability"
                   checked={availableOnly}
                   onCheckedChange={(checked) => setAvailableOnly(!!checked)}
                 />
                 <Label htmlFor="availability">In Stock Only</Label>
               </div>
             </div>
-            
+
             <div className="pt-4 space-y-2">
               <Button className="w-full" onClick={applyFilters}>
                 Apply Filters
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={clearFilters}
               >
@@ -276,8 +293,10 @@ export default function ProductsPage() {
                   <div>
                     <h3 className="font-semibold text-lg mb-3">Categories</h3>
                     <div className="space-y-2">
-                      <div 
-                        className={`cursor-pointer hover:text-primary transition-colors ${category === "" ? "text-primary font-medium" : ""}`}
+                      <div
+                        className={`cursor-pointer hover:text-primary transition-colors ${
+                          category === "" ? "text-primary font-medium" : ""
+                        }`}
                         onClick={() => {
                           setCategory("");
                           setMobileFiltersOpen(false);
@@ -288,7 +307,11 @@ export default function ProductsPage() {
                       {categories.map((cat) => (
                         <div
                           key={cat}
-                          className={`cursor-pointer hover:text-primary transition-colors ${category === cat.toLowerCase() ? "text-primary font-medium" : ""}`}
+                          className={`cursor-pointer hover:text-primary transition-colors ${
+                            category === cat.toLowerCase()
+                              ? "text-primary font-medium"
+                              : ""
+                          }`}
                           onClick={() => {
                             setCategory(cat.toLowerCase());
                             setMobileFiltersOpen(false);
@@ -299,9 +322,9 @@ export default function ProductsPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div>
                     <h3 className="font-semibold text-lg mb-3">Price Range</h3>
                     <div className="px-2">
@@ -325,21 +348,23 @@ export default function ProductsPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div>
                     <h3 className="font-semibold text-lg mb-3">Availability</h3>
                     <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="availability-mobile" 
+                      <Checkbox
+                        id="availability-mobile"
                         checked={availableOnly}
-                        onCheckedChange={(checked) => setAvailableOnly(!!checked)}
+                        onCheckedChange={(checked) =>
+                          setAvailableOnly(!!checked)
+                        }
                       />
                       <Label htmlFor="availability-mobile">In Stock Only</Label>
                     </div>
                   </div>
-                  
+
                   <div className="pt-4 space-y-2">
                     <SheetClose asChild>
                       <Button className="w-full" onClick={applyFilters}>
@@ -347,8 +372,8 @@ export default function ProductsPage() {
                       </Button>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="w-full"
                         onClick={clearFilters}
                       >
@@ -359,7 +384,7 @@ export default function ProductsPage() {
                 </div>
               </SheetContent>
             </Sheet>
-              
+
             <div className="flex items-center gap-2 flex-1">
               <Input
                 type="search"
@@ -368,19 +393,12 @@ export default function ProductsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="max-w-[200px]"
               />
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={applyFilters}
-              >
+              <Button variant="ghost" size="icon" onClick={applyFilters}>
                 <Search className="h-4 w-4" />
               </Button>
             </div>
-            
-            <Select 
-              value={sort} 
-              onValueChange={setSort}
-            >
+
+            <Select value={sort} onValueChange={setSort}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -393,66 +411,61 @@ export default function ProductsPage() {
               </SelectContent>
             </Select>
           </div>
-          
+
           {/* Active Filters */}
-          {(category || searchQuery || priceRange[0] > 0 || priceRange[1] < 1500 || availableOnly) && (
+          {(category ||
+            searchQuery ||
+            priceRange[0] > 0 ||
+            priceRange[1] < 1500 ||
+            availableOnly) && (
             <div className="flex flex-wrap items-center gap-2 mb-6">
-              <span className="text-sm text-muted-foreground">Active Filters:</span>
-              
+              <span className="text-sm text-muted-foreground">
+                Active Filters:
+              </span>
+
               {category && (
-                <Badge 
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
+                <Badge variant="secondary" className="flex items-center gap-1">
                   Category: {category}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
+                  <X
+                    className="h-3 w-3 cursor-pointer"
                     onClick={() => setCategory("")}
                   />
                 </Badge>
               )}
-              
+
               {searchQuery && (
-                <Badge 
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
+                <Badge variant="secondary" className="flex items-center gap-1">
                   Search: {searchQuery}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
+                  <X
+                    className="h-3 w-3 cursor-pointer"
                     onClick={() => setSearchQuery("")}
                   />
                 </Badge>
               )}
-              
+
               {(priceRange[0] > 0 || priceRange[1] < 1500) && (
-                <Badge 
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
-                  Price: {formatPrice(Math.min(...priceRange))} - {formatPrice(Math.max(...priceRange))}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Price: {formatPrice(Math.min(...priceRange))} -{" "}
+                  {formatPrice(Math.max(...priceRange))}
+                  <X
+                    className="h-3 w-3 cursor-pointer"
                     onClick={() => setPriceRange([0, 1500])}
                   />
                 </Badge>
               )}
-              
+
               {availableOnly && (
-                <Badge 
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
+                <Badge variant="secondary" className="flex items-center gap-1">
                   In Stock Only
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
+                  <X
+                    className="h-3 w-3 cursor-pointer"
                     onClick={() => setAvailableOnly(false)}
                   />
                 </Badge>
               )}
-              
-              <Button 
-                variant="ghost" 
+
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={clearFilters}
                 className="text-muted-foreground hover:text-foreground"
@@ -461,7 +474,7 @@ export default function ProductsPage() {
               </Button>
             </div>
           )}
-          
+
           {/* Products Grid */}
           <div className="hidden md:flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold">
@@ -470,7 +483,7 @@ export default function ProductsPage() {
                 ({filteredProducts.length} items)
               </span>
             </h1>
-            
+
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Input
@@ -480,17 +493,13 @@ export default function ProductsPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-[200px]"
                 />
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={applyFilters}
-                >
+                <Button variant="ghost" size="icon" onClick={applyFilters}>
                   <Search className="h-4 w-4" />
                 </Button>
               </div>
-              
-              <Select 
-                value={sort} 
+
+              <Select
+                value={sort}
                 onValueChange={(value) => {
                   setSort(value);
                   const params = new URLSearchParams(searchParams);
@@ -511,7 +520,7 @@ export default function ProductsPage() {
               </Select>
             </div>
           </div>
-          
+
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(8)].map((_, index) => (
@@ -523,7 +532,7 @@ export default function ProductsPage() {
               ))}
             </div>
           ) : filteredProducts.length === 0 ? (
-            <motion.div 
+            <motion.div
               className="text-center py-12 bg-muted rounded-lg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -536,7 +545,7 @@ export default function ProductsPage() {
               <Button onClick={clearFilters}>Clear Filters</Button>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

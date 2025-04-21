@@ -14,7 +14,7 @@ interface CartItemProps {
 
 export default function CartItem({ item }: CartItemProps) {
   const { updateQuantity, removeItem } = useCart();
-  const [quantity, setQuantity] = useState(item.quantity);
+  const [quantity, setQuantity] = useState(item.product?.quantity);
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuantity = parseInt(e.target.value);
@@ -24,13 +24,13 @@ export default function CartItem({ item }: CartItemProps) {
   };
 
   const incrementQuantity = () => {
-    const newQuantity = quantity + 1;
+    const newQuantity = quantity || 0 + 1;
     setQuantity(newQuantity);
     updateQuantity(item.id, newQuantity);
   };
 
   const decrementQuantity = () => {
-    if (quantity > 1) {
+    if (quantity && quantity > 1) {
       const newQuantity = quantity - 1;
       setQuantity(newQuantity);
       updateQuantity(item.id, newQuantity);
@@ -38,7 +38,7 @@ export default function CartItem({ item }: CartItemProps) {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="flex py-4 border-b last:border-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -49,8 +49,8 @@ export default function CartItem({ item }: CartItemProps) {
       <div className="h-20 w-20 rounded-md overflow-hidden bg-secondary flex-shrink-0">
         <Link to={`/products/${item.id}`}>
           <img
-            src={item.image}
-            alt={item.name}
+            src={item.product?.imageUrl}
+            alt={item.product?.title}
             className="h-full w-full object-cover"
           />
         </Link>
@@ -59,26 +59,26 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Product Info */}
       <div className="ml-4 flex-1">
         <div className="flex justify-between">
-          <Link 
+          <Link
             to={`/products/${item.id}`}
             className="font-medium line-clamp-1 hover:text-primary transition-colors"
           >
-            {item.name}
+            {item.product?.title}
           </Link>
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => removeItem(item.id)}
+            onClick={() => removeItem(item.product?.id || "")}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
             <Trash className="h-4 w-4" />
           </Button>
         </div>
-        
+
         <p className="text-sm text-muted-foreground mb-2">
-          {formatCurrency(item.price)}
+          {formatCurrency(item.product?.price || 0)}
         </p>
-        
+
         {/* Quantity Controls */}
         <div className="flex items-center">
           <div className="flex items-center border rounded-md">
@@ -86,7 +86,7 @@ export default function CartItem({ item }: CartItemProps) {
               variant="ghost"
               size="icon"
               onClick={decrementQuantity}
-              disabled={quantity <= 1}
+              disabled={!!quantity || !!quantity || 0 <= 1}
               className="h-8 w-8 rounded-none rounded-l-md"
             >
               <Minus className="h-3 w-3" />
@@ -108,7 +108,7 @@ export default function CartItem({ item }: CartItemProps) {
             </Button>
           </div>
           <div className="ml-auto font-medium">
-            {formatCurrency(item.price * quantity)}
+            {formatCurrency(item.product?.price || 0 * (quantity || 0))}
           </div>
         </div>
       </div>

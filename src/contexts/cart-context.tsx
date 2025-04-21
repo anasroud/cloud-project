@@ -1,102 +1,142 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { CartItem, Product } from "@/types";
+import { useAuth } from "react-oidc-context";
 import { toast } from "sonner";
 import { getCart, updateCart } from "@/lib/api";
-import { useAuth } from "./auth-context";
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
+  addItem: (product: Product) => Promise<void>;
+  removeItem: (productId: string) => Promise<void>;
+  updateQuantity: (cartItemId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;
+  isLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const auth = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
-  const { user, getAccessToken } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Calculate totals
-  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
+  const totalItems = items.reduce((total) => total + 1, 0);
   const totalPrice = items.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + (item.product?.price || 0),
     0
   );
 
-  // Fetch cart data when user logs in
+  // Fetch cart on auth state change
   useEffect(() => {
-    async function fetchCart() {
-      if (user) {
-        try {
-          const token = await getAccessToken();
-          const cartData = await getCart(token);
-          setItems(cartData.items);
-        } catch (error) {
-          console.error('Failed to fetch cart:', error);
-          toast.error('Failed to load cart data');
-        }
-      } else {
-        setItems([]);
-      }
+    if (auth.isAuthenticated) {
+      fetchCart();
+    } else {
+      setItems([]);
     }
-    fetchCart();
-  }, [user, getAccessToken]);
+  }, [auth.isAuthenticated]);
 
-  // Update cart on server
-  const syncCart = async (newItems: CartItem[]) => {
-    if (user) {
-      try {
-        const token = await getAccessToken();
-        await updateCart(token, newItems);
-      } catch (error) {
-        console.error('Failed to sync cart:', error);
-        toast.error('Failed to update cart');
-      }
+  const fetchCart = async () => {
+    if (!auth.isAuthenticated || !auth.user?.access_token) return;
+
+    setIsLoading(true);
+    try {
+      const cart = await getCart(auth.user.access_token);
+      setItems(cart.items || []);
+    } catch (error) {
+      toast.error("Failed to fetch cart");
+      console.error("Error fetching cart:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Add item to cart
-  const addItem = async (product: Product, quantity: number = 1) => {
-    const newItems = [...items];
-    const existingItemIndex = newItems.findIndex(item => item.id === product.id);
-
-    if (existingItemIndex > -1) {
-      newItems[existingItemIndex].quantity += quantity;
-    } else {
-      newItems.push({ ...product, quantity });
+  const addItem = async (product: Product) => {
+    if (!auth.isAuthenticated) {
+      toast.error("Please sign in to add items to cart");
+      return;
     }
 
-    setItems(newItems);
-    await syncCart(newItems);
-    toast.success(`Added ${product.name} to cart`);
+    setIsLoading(true);
+    try {
+      const newItem: CartItem = {
+        id: crypto.randomUUID(),
+        cartId: "", // Will be set by the API
+        productId: product.id,
+        product
+      };
+
+      const updatedItems = [...items, newItem];
+      const result = await updateCart(auth.user!.access_token!, updatedItems);
+      setItems(result.items || []);
+      toast.success(`Added ${product.title} to cart`);
+    } catch (error) {
+      toast.error("Failed to add item to cart");
+      console.error("Error adding item to cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Remove item from cart
-  const removeItem = async (productId: string) => {
-    const newItems = items.filter(item => item.id !== productId);
-    setItems(newItems);
-    await syncCart(newItems);
-    toast.info('Item removed from cart');
+  const removeItem = async (cartItemId: string) => {
+    if (!auth.isAuthenticated) return;
+
+    setIsLoading(true);
+    try {
+      const updatedItems = items.filter(item => item.id !== cartItemId);
+      const result = await updateCart(auth.user!.access_token!, updatedItems);
+      setItems(result.items || []);
+      toast.info("Item removed from cart");
+    } catch (error) {
+      toast.error("Failed to remove item from cart");
+      console.error("Error removing item from cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Update item quantity
-  const updateQuantity = async (productId: string, quantity: number) => {
-    const newItems = items.map(item =>
-      item.id === productId ? { ...item, quantity } : item
-    );
-    setItems(newItems);
-    await syncCart(newItems);
+  const updateQuantity = async (cartItemId: string) => {
+    if (!auth.isAuthenticated) return;
+
+    setIsLoading(true);
+    try {
+      const updatedItems = items.map(item => {
+        if (item.id === cartItemId) {
+          return { ...item };
+        }
+        return item;
+      });
+
+      const result = await updateCart(auth.user!.access_token!, updatedItems);
+      setItems(result.items || []);
+    } catch (error) {
+      toast.error("Failed to update cart");
+      console.error("Error updating cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Clear cart
   const clearCart = async () => {
-    setItems([]);
-    await syncCart([]);
-    toast.info('Cart cleared');
+    if (!auth.isAuthenticated) return;
+
+    setIsLoading(true);
+    try {
+      const result = await updateCart(auth.user!.access_token!, []);
+      setItems(result.items || []);
+      toast.info("Cart cleared");
+    } catch (error) {
+      toast.error("Failed to clear cart");
+      console.error("Error clearing cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -109,6 +149,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         totalItems,
         totalPrice,
+        isLoading,
       }}
     >
       {children}

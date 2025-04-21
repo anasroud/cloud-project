@@ -1,51 +1,36 @@
 export interface Product {
   id: string;
-  name: string;
+  title: string;
   description: string;
   price: number;
-  image: string;
+  imageUrl: string;
   category: string;
-  rating: number;
-  stock: number;
-  tags?: string[];
-  featured?: boolean;
-}
-
-export interface CartItem extends Product {
   quantity: number;
+  stock: number;
 }
 
-export interface User {
+export interface CartItem {
   id: string;
-  name: string;
-  email: string;
-  avatar?: string;
+  cartId: string;
+  productId: string;
+  product: Product;
+}
+
+export interface Cart {
+  id: string;
+  userId: string;
+  items?: CartItem[];
 }
 
 export interface Order {
   id: string;
-  items: CartItem[];
-  total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered';
-  date: string;
-  shippingAddress: Address;
+  userId: string;
+  productIds: string[];
+  products?: Product[];
 }
 
-export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-}
-
-export interface CategoryFilter {
+export interface User {
   id: string;
+  email: string;
   name: string;
-  count: number;
-}
-
-export interface PriceRange {
-  min: number;
-  max: number;
 }

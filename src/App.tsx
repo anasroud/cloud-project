@@ -8,20 +8,31 @@ import ProductsPage from "@/pages/products";
 import ProductDetailPage from "@/pages/product-detail";
 import CartPage from "@/pages/cart";
 import CheckoutPage from "@/pages/checkout";
-import LoginPage from "@/pages/login";
-import RegisterPage from "@/pages/register";
 import NotFoundPage from "@/pages/not-found";
 import ProfilePage from "@/pages/profile";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "react-oidc-context";
 
 function App() {
+  const auth = useAuth();
+
+
+  if (auth.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (auth.error) {
+    return <div>Encountering error... {auth.error.message}</div>;
+  }
+
+
   return (
     <ThemeProvider defaultTheme="light">
       <AuthProvider>
         <CartProvider>
           <BrowserRouter>
-            <Suspense 
+            <Suspense
               fallback={
                 <div className="flex h-screen w-full items-center justify-center">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -35,8 +46,6 @@ function App() {
                   <Route path="products/:id" element={<ProductDetailPage />} />
                   <Route path="cart" element={<CartPage />} />
                   <Route path="checkout" element={<CheckoutPage />} />
-                  <Route path="login" element={<LoginPage />} />
-                  <Route path="register" element={<RegisterPage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>

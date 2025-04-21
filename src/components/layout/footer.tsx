@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Facebook, Instagram, Twitter, Package, Heart, Mail } from "lucide-react";
+import { Facebook, Instagram, Twitter, Package, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Footer() {
@@ -16,7 +16,8 @@ export default function Footer() {
               <span className="text-lg font-bold">ShopWave</span>
             </div>
             <p className="text-muted-foreground mb-6 max-w-xs">
-              Discover a world of quality products curated for your everyday needs and special occasions.
+              Discover a world of quality products curated for your everyday
+              needs and special occasions.
             </p>
             <div className="flex space-x-4">
               <motion.a
@@ -45,19 +46,25 @@ export default function Footer() {
               </motion.a>
             </div>
           </div>
-          
+
           {/* Shop */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Shop</h3>
             <ul className="space-y-2">
               {[
                 { label: "All Products", href: "/products" },
-                { label: "New Arrivals", href: "/products?collection=new-arrivals" },
-                { label: "Best Sellers", href: "/products?collection=best-sellers" },
+                {
+                  label: "New Arrivals",
+                  href: "/products?collection=new-arrivals",
+                },
+                {
+                  label: "Best Sellers",
+                  href: "/products?collection=best-sellers",
+                },
                 { label: "On Sale", href: "/products?collection=sale" },
               ].map(({ label, href }) => (
                 <li key={label}>
-                  <Link 
+                  <Link
                     to={href}
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
@@ -67,7 +74,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          
+
           {/* Customer Service */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Customer Service</h3>
@@ -81,7 +88,7 @@ export default function Footer() {
                 { label: "Terms of Service", href: "/terms" },
               ].map(({ label, href }) => (
                 <li key={label}>
-                  <Link 
+                  <Link
                     to={href}
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
@@ -91,14 +98,16 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          
+
           {/* Newsletter */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Subscribe to Our Newsletter</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Subscribe to Our Newsletter
+            </h3>
             <p className="text-muted-foreground mb-4">
               Get updates on new products, sales, and more.
             </p>
-            <form 
+            <form
               className="flex flex-col sm:flex-row gap-2"
               onSubmit={(e) => {
                 e.preventDefault();
@@ -118,31 +127,31 @@ export default function Footer() {
             </form>
           </div>
         </div>
-        
+
         <div className="border-t border-border mt-12 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm mb-4 md:mb-0">
             © {new Date().getFullYear()} ShopWave. All rights reserved.
           </p>
           <div className="flex items-center space-x-6">
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/196/196578.png" 
-              alt="Visa" 
-              className="h-6" 
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/196/196578.png"
+              alt="Visa"
+              className="h-6"
             />
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/196/196561.png" 
-              alt="Mastercard" 
-              className="h-6" 
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/196/196561.png"
+              alt="Mastercard"
+              className="h-6"
             />
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/196/196566.png" 
-              alt="PayPal" 
-              className="h-6" 
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/196/196566.png"
+              alt="PayPal"
+              className="h-6"
             />
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/196/196539.png" 
-              alt="American Express" 
-              className="h-6" 
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/196/196539.png"
+              alt="American Express"
+              className="h-6"
             />
           </div>
         </div>

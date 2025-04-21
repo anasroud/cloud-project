@@ -5,7 +5,7 @@ import { useCart } from "@/contexts/cart-context";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Heart, ShoppingCart, Eye, BadgeCheck, Star } from "lucide-react";
+import { Heart, ShoppingCart, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
@@ -20,7 +20,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem(product, 1);
+    addItem(product);
   };
 
   const handleLike = (e: React.MouseEvent) => {
@@ -37,10 +37,13 @@ export default function ProductCard({ product }: ProductCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Product Image */}
-      <Link to={`/products/${product.id}`} className="block aspect-square overflow-hidden">
+      <Link
+        to={`/products/${product.id}`}
+        className="block aspect-square overflow-hidden"
+      >
         <motion.img
-          src={product.image}
-          alt={product.name}
+          src={product.imageUrl}
+          alt={product.title}
           className="h-full w-full object-cover"
           initial={{ scale: 1 }}
           animate={{ scale: isHovered ? 1.05 : 1 }}
@@ -70,7 +73,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 20 }}
           transition={{ duration: 0.2, delay: 0.05 }}
         >
-          <Link 
+          <Link
             to={`/products/${product.id}`}
             className="bg-background rounded-full p-2 shadow-sm hover:text-primary transition-colors block"
           >
@@ -85,29 +88,23 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="text-xs text-muted-foreground mb-1">
           {product.category}
         </div>
-        
+
         {/* Product Name */}
-        <Link 
+        <Link
           to={`/products/${product.id}`}
           className="font-medium line-clamp-1 hover:text-primary transition-colors"
         >
-          {product.name}
+          {product.title}
         </Link>
-        
+
         {/* Price and Rating */}
         <div className="flex justify-between items-center mt-2">
-          <span className="font-semibold">
-            {formatCurrency(product.price)}
-          </span>
-          <div className="flex items-center">
-            <Star className="h-3 w-3 text-amber-400 fill-amber-400 mr-1" />
-            <span className="text-sm">{product.rating.toFixed(1)}</span>
-          </div>
+          <span className="font-semibold">{formatCurrency(product.price)}</span>
         </div>
-        
+
         {/* Add to Cart Button */}
         <div className="mt-3">
-          <Button 
+          <Button
             onClick={handleAddToCart}
             className="w-full gap-2"
             variant="outline"
@@ -117,15 +114,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </Button>
         </div>
       </div>
-      
-      {/* "Featured" or "In Stock" Badge */}
-      {product.featured && (
-        <div className="absolute top-4 left-4 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full flex items-center">
-          <BadgeCheck className="h-3 w-3 mr-1" />
-          Featured
-        </div>
-      )}
-      
+
       {/* "Out of Stock" Badge */}
       {product.stock === 0 && (
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
