@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "./header";
 import Footer from "./footer";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 

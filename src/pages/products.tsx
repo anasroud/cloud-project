@@ -32,8 +32,8 @@ export default function ProductsPage() {
   const categoryParam = searchParams.get("category") || "";
   const searchParam = searchParams.get("search") || "";
   const sortParam = searchParams.get("sort") || "featured";
-  const minPriceParam = searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0;
-  const maxPriceParam = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : 1500;
+  const minPriceParam = searchParams.get("minPrice") ? Math.max(0, Number(searchParams.get("minPrice"))) : 0;
+  const maxPriceParam = searchParams.get("maxPrice") ? Math.min(1500, Number(searchParams.get("maxPrice"))) : 1500;
   
   // Local state for form inputs
   const [category, setCategory] = useState(categoryParam);
@@ -146,6 +146,24 @@ export default function ProductsPage() {
     setSearchParams({});
   };
 
+  // Format price for display
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  // Handle price range change
+  const handlePriceRangeChange = (value: number[]) => {
+    const [min, max] = value;
+    if (min <= max) {
+      setPriceRange([min, max]);
+    }
+  };
+
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
@@ -197,17 +215,17 @@ export default function ProductsPage() {
                   min={0}
                   max={1500}
                   step={10}
-                  onValueChange={(value) => setPriceRange(value as [number, number])}
+                  onValueChange={handlePriceRangeChange}
                   className="mb-4"
                 />
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm">
                   <div className="flex items-center">
-                    <DollarSign className="h-4 w-4" />
-                    <span>{Math.min(...priceRange)}</span>
+                    <DollarSign className="h-4 w-4 mr-1" />
+                    <span>{formatPrice(Math.min(...priceRange))}</span>
                   </div>
                   <div className="flex items-center">
-                    <DollarSign className="h-4 w-4" />
-                    <span>{Math.max(...priceRange)}</span>
+                    <DollarSign className="h-4 w-4 mr-1" />
+                    <span>{formatPrice(Math.max(...priceRange))}</span>
                   </div>
                 </div>
               </div>
@@ -292,17 +310,17 @@ export default function ProductsPage() {
                         min={0}
                         max={1500}
                         step={10}
-                        onValueChange={(value) => setPriceRange(value as [number, number])}
+                        onValueChange={handlePriceRangeChange}
                         className="mb-4"
                       />
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-sm">
                         <div className="flex items-center">
-                          <DollarSign className="h-4 w-4" />
-                          <span>{Math.min(...priceRange)}</span>
+                          <DollarSign className="h-4 w-4 mr-1" />
+                          <span>{formatPrice(Math.min(...priceRange))}</span>
                         </div>
                         <div className="flex items-center">
-                          <DollarSign className="h-4 w-4" />
-                          <span>{Math.max(...priceRange)}</span>
+                          <DollarSign className="h-4 w-4 mr-1" />
+                          <span>{formatPrice(Math.max(...priceRange))}</span>
                         </div>
                       </div>
                     </div>
@@ -412,7 +430,7 @@ export default function ProductsPage() {
                   variant="secondary"
                   className="flex items-center gap-1"
                 >
-                  Price: ${Math.min(...priceRange)} - ${Math.max(...priceRange)}
+                  Price: {formatPrice(Math.min(...priceRange))} - {formatPrice(Math.max(...priceRange))}
                   <X 
                     className="h-3 w-3 cursor-pointer" 
                     onClick={() => setPriceRange([0, 1500])}

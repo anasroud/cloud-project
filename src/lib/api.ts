@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.cloud.anasroud.com';
+const API_BASE_URL = 'https://api.cloud.anasroud.com/release';
 
 export async function fetchProducts() {
   const response = await fetch(`${API_BASE_URL}/products`);
