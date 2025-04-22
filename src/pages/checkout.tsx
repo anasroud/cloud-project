@@ -32,7 +32,7 @@ export default function CheckoutPage() {
   const [shippingInfo, setShippingInfo] = useState({
     firstName: "",
     lastName: "",
-    email: user?.email || "",
+    email: auth.user?.profile.email || "",
     address: "",
     city: "",
     state: "",
