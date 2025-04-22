@@ -1,6 +1,6 @@
 import { Cart, CartItem, Order, Product } from "@/types";
 
-const API_BASE_URL = "/api";
+const API_BASE_URL = "https://api.cloud.anasroud.com";
 
 // Products
 export async function getProducts(): Promise<Product[]> {
