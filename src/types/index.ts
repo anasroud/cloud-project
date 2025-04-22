@@ -14,23 +14,47 @@ export interface CartItem {
   cartId: string;
   productId: string;
   product: Product;
+  quantity: number;
 }
 
 export interface Cart {
   id: string;
   userId: string;
-  items?: CartItem[];
+  items: CartItem[];
+  totalItems: number;
+  totalPrice: number;
+}
+
+export interface OrderItem {
+  id: string;
+  product: Product;
+  quantity: number;
+  price: number;
 }
 
 export interface Order {
   id: string;
   userId: string;
-  productIds: string[];
-  products?: Product[];
+  items: OrderItem[];
+  totalPrice: number;
+  status: "pending" | "processing" | "shipped" | "delivered";
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface User {
   id: string;
   email: string;
   name: string;
+  profile: {
+    name: string;
+    email: string;
+    picture?: string;
+  };
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  error?: string;
 }

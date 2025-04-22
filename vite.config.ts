@@ -61,7 +61,10 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   define: {
-    'process.env': {},
+    'process.env': {
+      VITE_API_URL: 'https://cloud.anasroud.com/api',
+      VITE_AUTH_URL: 'https://cloud.anasroud.com/auth',
+    },
     global: 'globalThis',
   },
 });
