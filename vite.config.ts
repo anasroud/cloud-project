@@ -13,6 +13,13 @@ export default defineConfig({
     port: 5173,
     host: true,
     open: true,
+    proxy: {
+      '/api': {
+        target: 'https://b5b3s6n4k8.execute-api.us-east-2.amazonaws.com/release', // Your backend URL
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
   build: {
     target: 'esnext',
