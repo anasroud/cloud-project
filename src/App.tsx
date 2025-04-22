@@ -1,6 +1,5 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/contexts/cart-context";
-import { AuthProvider } from "@/contexts/auth-context";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "@/components/layout/layout";
 import HomePage from "@/pages/home";
@@ -15,21 +14,28 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "react-oidc-context";
 
 function App() {
+
   const auth = useAuth();
 
+  switch (auth.activeNavigator) {
+    case "signinSilent":
+      return <div>Signing you in...</div>;
+    case "signoutRedirect":
+      return <div>Signing you out...</div>;
+  }
 
   if (auth.isLoading) {
     return <div>Loading...</div>;
   }
 
   if (auth.error) {
-    return <div>Encountering error... {auth.error.message}</div>;
+    return <div>Oops... {auth.error.message}</div>;
   }
+
 
 
   return (
     <ThemeProvider defaultTheme="light">
-      <AuthProvider>
         <CartProvider>
           <BrowserRouter>
             <Suspense
@@ -53,7 +59,6 @@ function App() {
             </Suspense>
           </BrowserRouter>
         </CartProvider>
-      </AuthProvider>
     </ThemeProvider>
   );
 }

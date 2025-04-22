@@ -43,6 +43,17 @@ export default function Header() {
   const navigate = useNavigate();
   const auth = useAuth();
 
+  const signOutRedirect = async () => {
+    // Remove the user from local session
+    await auth.removeUser();
+
+    // Then redirect to Cognito’s logout endpoint
+    const clientId = "2g09ceiljspi692sbhvua06jbb";
+    const logoutUri = "<logout uri>";
+    const cognitoDomain = "https://us-east-2dmqjk4oau.auth.us-east-2.amazoncognito.com";
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+  };
+
   // Check if header should be transparent (only on homepage)
   const isHomePage = location.pathname === "/";
 
@@ -204,7 +215,7 @@ export default function Header() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => {auth.signoutRedirect()}}
+                    onClick={() => {signOutRedirect()}}
                     className="cursor-pointer text-destructive"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
@@ -221,7 +232,7 @@ export default function Header() {
                 onClick={() => auth.signinRedirect()}
               >
 
-                <Link to="/login">Sign In</Link>
+                <div>Sign In</div>
               </Button>
             )}
 
@@ -296,8 +307,10 @@ export default function Header() {
                     </div>
                     {!auth.isAuthenticated ? (
                       <div className="pt-4 flex flex-col gap-2">
-                        <Button className="w-full" asChild>
-                          <Link to="/login">Sign In</Link>
+                        <Button className="w-full" asChild onClick={() => {
+                          auth.signinRedirect();
+                        }}>
+                          <div>Sign In</div>
                         </Button>
                         <Button variant="outline" className="w-full" asChild>
                           <Link to="/register">Create Account</Link>
@@ -339,7 +352,7 @@ export default function Header() {
                           variant="ghost"
                           className="w-full justify-start text-destructive"
                           onClick={() => {
-                            auth.signoutRedirect()
+                            signOutRedirect()
                           }}
                         >
                           <LogOut className="mr-2 h-4 w-4" />
