@@ -5,8 +5,7 @@ import { useCart } from "@/contexts/cart-context";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Heart, ShoppingCart, Eye } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ShoppingCart, Eye } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -15,18 +14,11 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const [isHovered, setIsHovered] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
-  };
-
-  const handleLike = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsLiked(!isLiked);
   };
 
   return (
@@ -53,20 +45,6 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Quick Actions */}
       <div className="absolute top-4 right-4 flex flex-col gap-2">
-        {/* Wishlist Button */}
-        <motion.button
-          onClick={handleLike}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2 }}
-          className={cn(
-            "bg-background rounded-full p-2 shadow-sm hover:text-primary transition-colors",
-            isLiked && "text-red-500 hover:text-red-600"
-          )}
-        >
-          <Heart className="h-4 w-4" fill={isLiked ? "currentColor" : "none"} />
-        </motion.button>
-
         {/* Quick View Button */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}

@@ -72,8 +72,8 @@ export default function ProductsPage() {
           result = await getProducts();
         }
 
-        setProducts(result);
-        setFilteredProducts(result);
+        setProducts(result.data);
+        setFilteredProducts(result.data);
       } catch (err) {
         setError("Failed to load products");
         console.error("Error loading products:", err);
@@ -137,8 +137,8 @@ export default function ProductsPage() {
       try {
         setLoading(true);
         const results = await searchProducts(searchQuery);
-        setProducts(results);
-      } catch (err) {
+        setProducts(results.data);
+    } catch (err) {
         setError("Failed to search products");
         console.error("Error searching products:", err);
       } finally {

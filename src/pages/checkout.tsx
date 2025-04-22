@@ -114,9 +114,9 @@ export default function CheckoutPage() {
   const handleSubmitOrder = () => {
     // In a real app, you would send data to your backend here
     toast.success("Order placed successfully!");
-    createOrder(auth.user?.id_token || '', items.map(item => item.product.id));
-    clearCart();
-    navigate("/profile?order=success");
+    await createOrder(auth.user?.id_token || '', items.map(item => item.product.id));
+    await clearCart();
+    navigate("/");
   };
 
   // Redirect if cart is empty
@@ -502,9 +502,8 @@ export default function CheckoutPage() {
                               <div className="ml-4 flex-1">
                                 <p className="font-medium">{item.product.title}</p>
                                 <div className="flex justify-between text-sm text-muted-foreground">
-                                  <p>Qty: {item.product.quantity}</p>
                                   <p>
-                                    {formatCurrency(item.product.price * item.product.quantity)}
+                                    {formatCurrency(item.product.price)}
                                   </p>
                                 </div>
                               </div>

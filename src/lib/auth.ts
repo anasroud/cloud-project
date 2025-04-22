@@ -14,4 +14,4 @@ export const oidcConfig: UserManagerSettings = {
     userinfo_endpoint: "https://cloud.anasroud.com/auth/userinfo",
     end_session_endpoint: "https://cloud.anasroud.com/auth/logout",
   },
-}; 
+};

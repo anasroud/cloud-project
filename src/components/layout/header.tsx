@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import CartDrawer from "@/components/cart/cart-drawer";
-import { useCart } from "@/contexts/cart-context";
 import { ModeToggle } from "@/components/mode-toggle";
 import {
   NavigationMenu,
@@ -33,14 +32,16 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuth } from "react-oidc-context";
+import { useCart } from "@/contexts/cart-context";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { totalItems } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
+
   const auth = useAuth();
 
   const signOutRedirect = async () => {
@@ -213,7 +214,6 @@ export default function Header() {
                       Wishlist
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => {signOutRedirect()}}
                     className="cursor-pointer text-destructive"
@@ -231,7 +231,6 @@ export default function Header() {
                 className="hidden sm:flex"
                 onClick={() => auth.signinRedirect()}
               >
-
                 <div>Sign In</div>
               </Button>
             )}
@@ -308,7 +307,7 @@ export default function Header() {
                     {!auth.isAuthenticated ? (
                       <div className="pt-4 flex flex-col gap-2">
                         <Button className="w-full" asChild onClick={() => {
-                          auth.signinRedirect();
+                          auth.signinRedirect
                         }}>
                           <div>Sign In</div>
                         </Button>
@@ -352,7 +351,7 @@ export default function Header() {
                           variant="ghost"
                           className="w-full justify-start text-destructive"
                           onClick={() => {
-                            signOutRedirect()
+                            signOutRedirect();
                           }}
                         >
                           <LogOut className="mr-2 h-4 w-4" />

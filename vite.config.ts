@@ -62,8 +62,7 @@ export default defineConfig({
   },
   define: {
     'process.env': {
-      VITE_API_URL: 'https://cloud.anasroud.com/api',
-      VITE_AUTH_URL: 'https://cloud.anasroud.com/auth',
+      VITE_API_URL: 'api.cloud.anasroud.com',
     },
     global: 'globalThis',
   },

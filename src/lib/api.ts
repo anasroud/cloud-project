@@ -1,4 +1,4 @@
-import { Cart, CartItem, Order, Product, ApiResponse } from "@/types";
+import { Cart, Order, Product, ApiResponse } from "@/types";
 import axios from 'axios';
 
 const API_BASE_URL = "https://api.cloud.anasroud.com";
@@ -41,13 +41,33 @@ export async function getCart(token: string): Promise<ApiResponse<Cart>> {
 
 export async function updateCart(
   token: string,
-  cartItems: CartItem[]
+  productId: string
 ): Promise<ApiResponse<Cart>> {
-  const response = await api.post('/cart', { items: cartItems }, {
+  const response = await api.post('/cart', { productId: productId }, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+  return response.data;
+}
+
+export async function removeFromCart(
+  token: string,
+  itemId?: string
+): Promise<ApiResponse<Cart>> {
+  let request = '';
+  if (itemId) {
+    request = `/cart/${itemId}/`;
+  } else {
+    request = '/cart'
+  }
+
+  const response = await api.delete(request, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   return response.data;
 }
 

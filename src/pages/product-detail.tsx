@@ -15,8 +15,6 @@ import {
   RotateCcw,
   Shield,
   ArrowLeft,
-  Plus,
-  Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types";
@@ -27,14 +25,13 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const [product, setProduct] = useState<Product>({} as Product);
-  const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     const fetchData = async (id: string) => {
       try {
         const data = await getProduct(id);
-        setProduct(data);
+        setProduct(data.data);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       }
@@ -51,16 +48,6 @@ export default function ProductDetailPage() {
 
   // Dummy product images (in a real app these would come from the product data)
   const productImages = [product.imageUrl];
-
-  const incrementQuantity = () => {
-    setQuantity((prev) => prev + 1);
-  };
-
-  const decrementQuantity = () => {
-    if (quantity > 1) {
-      setQuantity((prev) => prev - 1);
-    }
-  };
 
   const handleAddToCart = () => {
     addItem(product);
@@ -179,33 +166,6 @@ export default function ProductDetailPage() {
                 ? `Low Stock (${product.quantity} left)`
                 : "Out of Stock"}
             </span>
-          </div>
-
-          {/* Quantity Selector */}
-          <div className="flex items-center space-x-4">
-            <span className="font-medium">Quantity:</span>
-            <div className="flex items-center">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={decrementQuantity}
-                disabled={quantity <= 1}
-                className="h-9 w-9 rounded-r-none"
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <div className="h-9 w-12 flex items-center justify-center border-y">
-                {quantity}
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={incrementQuantity}
-                className="h-9 w-9 rounded-l-none"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
 
           {/* Action Buttons */}

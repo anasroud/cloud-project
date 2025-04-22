@@ -1,41 +1,17 @@
-import { useState } from "react";
 import { CartItem as CartItemType } from "@/types";
-import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Trash, Minus, Plus } from "lucide-react";
+import { Trash } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/cart-context";
 
 interface CartItemProps {
   item: CartItemType;
 }
 
 export default function CartItem({ item }: CartItemProps) {
-  const { updateQuantity, removeItem } = useCart();
-  const [quantity, setQuantity] = useState(item.product?.quantity);
-
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuantity = parseInt(e.target.value);
-    if (isNaN(newQuantity) || newQuantity < 1) return;
-    setQuantity(newQuantity);
-    updateQuantity(item.id, newQuantity);
-  };
-
-  const incrementQuantity = () => {
-    const newQuantity = quantity || 0 + 1;
-    setQuantity(newQuantity);
-    updateQuantity(item.id, newQuantity);
-  };
-
-  const decrementQuantity = () => {
-    if (quantity && quantity > 1) {
-      const newQuantity = quantity - 1;
-      setQuantity(newQuantity);
-      updateQuantity(item.id, newQuantity);
-    }
-  };
+  const { removeItem } = useCart();
 
   return (
     <motion.div
@@ -47,7 +23,7 @@ export default function CartItem({ item }: CartItemProps) {
     >
       {/* Product Image */}
       <div className="h-20 w-20 rounded-md overflow-hidden bg-secondary flex-shrink-0">
-        <Link to={`/products/${item.id}`}>
+        <Link to={`/products/${item.product.id}`}>
           <img
             src={item.product?.imageUrl}
             alt={item.product?.title}
@@ -68,7 +44,7 @@ export default function CartItem({ item }: CartItemProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => removeItem(item.product?.id || "")}
+            onClick={() => removeItem(item.id)}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
             <Trash className="h-4 w-4" />
@@ -81,34 +57,8 @@ export default function CartItem({ item }: CartItemProps) {
 
         {/* Quantity Controls */}
         <div className="flex items-center">
-          <div className="flex items-center border rounded-md">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={decrementQuantity}
-              disabled={!!quantity || !!quantity || 0 <= 1}
-              className="h-8 w-8 rounded-none rounded-l-md"
-            >
-              <Minus className="h-3 w-3" />
-            </Button>
-            <Input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={handleQuantityChange}
-              className="h-8 w-12 rounded-none border-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={incrementQuantity}
-              className="h-8 w-8 rounded-none rounded-r-md"
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </div>
           <div className="ml-auto font-medium">
-            {formatCurrency(item.product?.price || 0 * (quantity || 0))}
+            {formatCurrency(item.product?.price)}
           </div>
         </div>
       </div>

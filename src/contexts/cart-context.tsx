@@ -2,13 +2,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { CartItem, Product } from "@/types";
 import { useAuth } from "react-oidc-context";
 import { toast } from "sonner";
-import { getCart, updateCart } from "@/lib/api";
+import { getCart, removeFromCart, updateCart } from "@/lib/api";
 
 interface CartContextType {
   items: CartItem[];
   addItem: (product: Product) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
-  updateQuantity: (cartItemId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;
@@ -25,7 +24,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Calculate totals
   const totalItems = items.reduce((total) => total + 1, 0);
   const totalPrice = items.reduce(
-    (total, item) => total + (item.product?.price || 0),
+    (total, item) => total + (item?.product.price || 0),
     0
   );
 
@@ -44,7 +43,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const cart = await getCart(auth.user.id_token || '');
-      setItems(cart.items || []);
+      setItems(cart.data.items || []);
     } catch (error) {
       toast.error("Failed to fetch cart");
       console.error("Error fetching cart:", error);
@@ -62,16 +61,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
     try {
-      const newItem: CartItem = {
-        id: crypto.randomUUID(),
-        cartId: "", // Will be set by the API
-        productId: product.id,
-        product
-      };
-
-      const updatedItems = [...items, newItem];
-      const result = await updateCart(auth.user!.id_token!, updatedItems);
-      setItems(result.items || []);
+      await updateCart(auth.user!.id_token!, product.id);
+      await fetchCart();
       toast.success(`Added ${product.title} to cart`);
     } catch (error) {
       toast.error("Failed to add item to cart");
@@ -82,41 +73,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Remove item from cart
-  const removeItem = async (cartItemId: string) => {
+  const removeItem = async (cartItemId?: string) => {
     if (!auth.isAuthenticated) return;
 
     setIsLoading(true);
     try {
-      const updatedItems = items.filter(item => item.id !== cartItemId);
-      const result = await updateCart(auth.user!.id_token!, updatedItems);
-      setItems(result.items || []);
+      await removeFromCart(auth.user!.id_token!, cartItemId);
+      await fetchCart();
       toast.info("Item removed from cart");
     } catch (error) {
       toast.error("Failed to remove item from cart");
       console.error("Error removing item from cart:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Update item quantity
-  const updateQuantity = async (cartItemId: string) => {
-    if (!auth.isAuthenticated) return;
-
-    setIsLoading(true);
-    try {
-      const updatedItems = items.map(item => {
-        if (item.id === cartItemId) {
-          return { ...item };
-        }
-        return item;
-      });
-
-      const result = await updateCart(auth.user!.id_token!, updatedItems);
-      setItems(result.items || []);
-    } catch (error) {
-      toast.error("Failed to update cart");
-      console.error("Error updating cart:", error);
     } finally {
       setIsLoading(false);
     }
@@ -128,8 +95,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
     try {
-      const result = await updateCart(auth.user!.id_token!, []);
-      setItems(result.items || []);
+      await removeItem();
+      await fetchCart();
       toast.info("Cart cleared");
     } catch (error) {
       toast.error("Failed to clear cart");
@@ -145,7 +112,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         items,
         addItem,
         removeItem,
-        updateQuantity,
         clearCart,
         totalItems,
         totalPrice,
