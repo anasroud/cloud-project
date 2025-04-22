@@ -111,7 +111,7 @@ export default function CheckoutPage() {
     setActiveStep((prev) => prev - 1);
   };
 
-  const handleSubmitOrder = () => {
+  const handleSubmitOrder = async () => {
     // In a real app, you would send data to your backend here
     toast.success("Order placed successfully!");
     await createOrder(auth.user?.id_token || '', items.map(item => item.product.id));
