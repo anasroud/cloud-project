@@ -76,7 +76,7 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="pt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 icon: <Truck className="h-8 w-8 mb-4 text-primary" />,
