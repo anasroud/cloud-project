@@ -1,97 +1,93 @@
-import { Cart, CartItem, Order, Product } from "@/types";
+import { Cart, CartItem, Order, Product, ApiResponse } from "@/types";
+import axios from 'axios';
 
-const API_BASE_URL = "https://api.cloud.anasroud.com";
+const API_BASE_URL = "https://cloud.anasroud.com/api";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 // Products
-export async function getProducts(): Promise<Product[]> {
-  const response = await fetch(`${API_BASE_URL}/products`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
-  }
-  return response.json();
+export async function getProducts(): Promise<ApiResponse<Product[]>> {
+  const response = await api.get('/products');
+  return response.data;
 }
 
 // Products
-export async function getProduct(productId: string): Promise<Product> {
-  const response = await fetch(`${API_BASE_URL}/products/${productId}`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
-  }
-  return response.json();
+export async function getProduct(productId: string): Promise<ApiResponse<Product>> {
+  const response = await api.get(`/products/${productId}`);
+  return response.data;
 }
 
-export async function searchProducts(query: string): Promise<Product[]> {
-  const response = await fetch(`${API_BASE_URL}/search`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ searchTerm: query }),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to search products");
-  }
-  return response.json();
+export async function searchProducts(query: string): Promise<ApiResponse<Product[]>> {
+  const response = await api.post('/search', { searchTerm: query });
+  return response.data;
 }
 
 // Cart
-export async function getCart(token: string): Promise<Cart> {
-  const response = await fetch(`${API_BASE_URL}/cart`, {
+export async function getCart(token: string): Promise<ApiResponse<Cart>> {
+  const response = await api.get('/cart', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch cart");
-  }
-  return response.json();
+  return response.data;
 }
 
 export async function updateCart(
   token: string,
   cartItems: CartItem[]
-): Promise<Cart> {
-  const response = await fetch(`${API_BASE_URL}/cart`, {
-    method: "POST",
+): Promise<ApiResponse<Cart>> {
+  const response = await api.post('/cart', { items: cartItems }, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ items: cartItems }),
   });
-  if (!response.ok) {
-    throw new Error("Failed to update cart");
-  }
-  return response.json();
+  return response.data;
 }
 
 // Orders
-export async function getOrders(token: string): Promise<Order[]> {
-  const response = await fetch(`${API_BASE_URL}/orders`, {
+export const getOrders = async (token: string): Promise<ApiResponse<Order[]>> => {
+  const response = await api.get('/orders', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch orders");
-  }
-  return response.json();
-}
+  return response.data;
+};
 
-export async function createOrder(
-  token: string,
-  productIds: string[]
-): Promise<Order> {
-  const response = await fetch(`${API_BASE_URL}/orders`, {
-    method: "POST",
+export const createOrder = async (token: string, productIds: string[]): Promise<ApiResponse<Order>> => {
+  const response = await api.post('/orders', { productIds }, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ productIds }),
   });
-  if (!response.ok) {
-    throw new Error("Failed to create order");
-  }
-  return response.json();
-}
+  return response.data;
+};
+
+export const getOrder = async (token: string, orderId: string): Promise<ApiResponse<Order>> => {
+  const response = await api.get(`/orders/${orderId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const updateOrderStatus = async (
+  token: string,
+  orderId: string,
+  status: Order['status']
+): Promise<ApiResponse<Order>> => {
+  const response = await api.patch(`/orders/${orderId}`, { status }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};

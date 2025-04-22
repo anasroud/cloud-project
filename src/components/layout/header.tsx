@@ -31,6 +31,7 @@ import {
   Heart,
   Package,
   LogOut,
+  ShoppingBag,
 } from "lucide-react";
 import { useAuth } from "react-oidc-context";
 
@@ -38,21 +39,12 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { totalItems } = useCart();
+  const { items } = useCart();
+  const { user, isAuthenticated, login, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const auth = useAuth();
 
-  const signOutRedirect = async () => {
-    // Remove the user from local session
-    await auth.removeUser();
-
-    // Then redirect to Cognito’s logout endpoint
-    const clientId = "2g09ceiljspi692sbhvua06jbb";
-    const logoutUri = "<logout uri>";
-    const cognitoDomain = "https://us-east-2dmqjk4oau.auth.us-east-2.amazoncognito.com";
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
-  };
+  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
 
   // Check if header should be transparent (only on homepage)
   const isHomePage = location.pathname === "/";
@@ -156,7 +148,7 @@ export default function Header() {
               className="relative"
               onClick={() => setIsCartOpen(true)}
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingBag className="h-5 w-5" />
               {totalItems > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
@@ -169,7 +161,7 @@ export default function Header() {
             </Button>
 
             {/* User Menu */}
-            {auth.isAuthenticated ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -178,8 +170,8 @@ export default function Header() {
                     className="relative h-8 w-8 rounded-full"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage alt={auth.user?.profile.name} />
-                      <AvatarFallback>{auth.user?.profile.name?.charAt(0)}</AvatarFallback>
+                      <AvatarImage alt={user?.profile.name} />
+                      <AvatarFallback>{user?.profile.name?.charAt(0)}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -213,9 +205,8 @@ export default function Header() {
                       Wishlist
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => {signOutRedirect()}}
+                    onClick={() => {logout()}}
                     className="cursor-pointer text-destructive"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
@@ -229,9 +220,8 @@ export default function Header() {
                 size="sm"
                 asChild
                 className="hidden sm:flex"
-                onClick={() => auth.signinRedirect()}
+                onClick={() => login()}
               >
-
                 <div>Sign In</div>
               </Button>
             )}
@@ -305,10 +295,10 @@ export default function Header() {
                         </Button>
                       ))}
                     </div>
-                    {!auth.isAuthenticated ? (
+                    {!isAuthenticated ? (
                       <div className="pt-4 flex flex-col gap-2">
                         <Button className="w-full" asChild onClick={() => {
-                          auth.signinRedirect();
+                          login();
                         }}>
                           <div>Sign In</div>
                         </Button>
@@ -352,7 +342,7 @@ export default function Header() {
                           variant="ghost"
                           className="w-full justify-start text-destructive"
                           onClick={() => {
-                            signOutRedirect()
+                            logout()
                           }}
                         >
                           <LogOut className="mr-2 h-4 w-4" />
@@ -369,7 +359,7 @@ export default function Header() {
       </div>
 
       {/* Cart Drawer */}
-      <CartDrawer open={isCartOpen} setOpen={setIsCartOpen} />
+      <CartDrawer open={isCartOpen} onOpenChange={setIsCartOpen} />
     </header>
   );
 }
