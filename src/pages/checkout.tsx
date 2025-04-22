@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "@/contexts/cart-context";
-import { useAuth } from "@/contexts/auth-context";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,10 +20,12 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { createOrder } from "@/lib/api";
+import { useAuth } from "react-oidc-context";
 
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCart();
-  const { user } = useAuth();
+  const auth = useAuth();
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(1);
@@ -113,6 +114,7 @@ export default function CheckoutPage() {
   const handleSubmitOrder = () => {
     // In a real app, you would send data to your backend here
     toast.success("Order placed successfully!");
+    createOrder(auth.user?.id_token || '', items.map(item => item.product.id));
     clearCart();
     navigate("/profile?order=success");
   };

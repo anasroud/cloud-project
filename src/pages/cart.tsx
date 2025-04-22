@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/cart-context";
-import { useAuth } from "@/contexts/auth-context";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -10,10 +9,11 @@ import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import CartItem from "@/components/cart/cart-item";
 import { ShoppingCart, ArrowRight, CreditCard, Trash } from "lucide-react";
+import { useAuth } from "react-oidc-context";
 
 export default function CartPage() {
   const { items, totalItems, totalPrice, clearCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const auth = useAuth();
   const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState("");
   const [promoCodeApplied, setPromoCodeApplied] = useState(false);
@@ -178,7 +178,7 @@ export default function CartPage() {
                     Proceed to Checkout
                   </Button>
 
-                  {!isAuthenticated && (
+                  {!auth.isAuthenticated && (
                     <p className="text-muted-foreground text-sm mt-4 text-center">
                       You'll need to{" "}
                       <Link

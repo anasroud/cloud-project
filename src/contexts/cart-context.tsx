@@ -39,11 +39,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [auth.isAuthenticated]);
 
   const fetchCart = async () => {
-    if (!auth.isAuthenticated || !auth.user?.access_token) return;
+    if (!auth.isAuthenticated || !auth.user?.id_token) return;
 
     setIsLoading(true);
     try {
-      const cart = await getCart(auth.user.access_token);
+      const cart = await getCart(auth.user.id_token || '');
       setItems(cart.items || []);
     } catch (error) {
       toast.error("Failed to fetch cart");
@@ -70,7 +70,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       };
 
       const updatedItems = [...items, newItem];
-      const result = await updateCart(auth.user!.access_token!, updatedItems);
+      const result = await updateCart(auth.user!.id_token!, updatedItems);
       setItems(result.items || []);
       toast.success(`Added ${product.title} to cart`);
     } catch (error) {
@@ -88,7 +88,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const updatedItems = items.filter(item => item.id !== cartItemId);
-      const result = await updateCart(auth.user!.access_token!, updatedItems);
+      const result = await updateCart(auth.user!.id_token!, updatedItems);
       setItems(result.items || []);
       toast.info("Item removed from cart");
     } catch (error) {
@@ -112,7 +112,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return item;
       });
 
-      const result = await updateCart(auth.user!.access_token!, updatedItems);
+      const result = await updateCart(auth.user!.id_token!, updatedItems);
       setItems(result.items || []);
     } catch (error) {
       toast.error("Failed to update cart");
@@ -128,7 +128,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
     try {
-      const result = await updateCart(auth.user!.access_token!, []);
+      const result = await updateCart(auth.user!.id_token!, []);
       setItems(result.items || []);
       toast.info("Cart cleared");
     } catch (error) {
