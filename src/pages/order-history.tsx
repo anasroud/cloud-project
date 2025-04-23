@@ -78,7 +78,7 @@ export default function OrderHistoryPage() {
         <div className="space-y-6">
           {orders.map((order) => {
             const totalPrice = order.products.reduce(
-              (sum, product) => sum + product.price * product.quantity,
+              (sum, product) => sum + product.price,
               0
             );
             const status = "delivered"; // Mock status

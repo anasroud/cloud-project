@@ -171,29 +171,11 @@ export default function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/profile"
-                      className="cursor-pointer flex items-center"
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/profile/orders"
+                      to="/orders"
                       className="cursor-pointer flex items-center"
                     >
                       <Package className="mr-2 h-4 w-4" />
                       Orders
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/profile/wishlist"
-                      className="cursor-pointer flex items-center"
-                    >
-                      <Heart className="mr-2 h-4 w-4" />
-                      Wishlist
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
