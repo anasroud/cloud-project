@@ -56,5 +56,10 @@ export interface User {
 export interface ApiResponse<T> {
   data: T;
   message?: string;
+  meta?: {
+    totalItems: number,
+    totalPages: number,
+    currentPage: number,
+  }
   error?: string;
 }

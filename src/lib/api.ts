@@ -12,15 +12,33 @@ const api = axios.create({
   },
 });
 
-// Products
-export async function getProducts(): Promise<ApiResponse<Product[]>> {
-  const response = await api.get('/products');
+interface ProductQueryParams {
+  offset?: number;
+  limit?: number;
+  category?: string;
+  minPrice?: number | string;
+  maxPrice?: number | string;
+  isInStock?: string;  // "true" or "false"
+  orderByPrice?: number; // 0 (asc) or 1 (desc)
+  newest?: boolean;
+  title:string;
+}
+
+export async function getProducts(
+  params?: ProductQueryParams
+): Promise<ApiResponse<Product[]>> {
+  const response = await api.get('/products', { params });
   return response.data;
 }
 
 // Products
 export async function getProduct(productId: string): Promise<ApiResponse<Product>> {
   const response = await api.get(`/products/${productId}`);
+  return response.data;
+}
+
+export async function getCategories(): Promise<ApiResponse<string[]>> {
+  const response = await api.get("/cats");
   return response.data;
 }
 

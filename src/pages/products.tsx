@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getProducts, searchProducts } from "@/lib/api";
+import { getCategories, getProducts, searchProducts } from "@/lib/api";
 import ProductCard from "@/components/product/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,14 +25,16 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { Product } from "@/types";
+import PaginationComponent from "@/components/PaginationComponent";
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalNumberOfPages, setTotalNumberOfPages] = useState(0);
 
   // Get filter values from URL params
   const categoryParam = searchParams.get("category") || "";
@@ -47,6 +49,7 @@ export default function ProductsPage() {
 
   // Local state for form inputs
   const [category, setCategory] = useState(categoryParam);
+  const [categories, setCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const [sort, setSort] = useState(sortParam);
   const [priceRange, setPriceRange] = useState<[number, number]>([
@@ -55,25 +58,54 @@ export default function ProductsPage() {
   ]);
   const [availableOnly, setAvailableOnly] = useState(false);
 
-  // Get unique categories
-  const categories = [...new Set(products.map((product) => product.category))];
+  useEffect(() => {
+    async function loadCats() {
+      try {
+        const data = await getCategories();
+        setCategories(data.data);
+      } catch (error) {
+        console.error("Failed to load categories:", error);
+      }
+    }
 
-  // Fetch products
+    loadCats();
+  }, []);
+
+  // Get unique categories
   useEffect(() => {
     async function loadProducts() {
       try {
         setLoading(true);
         setError(null);
 
-        let result;
-        if (searchParam) {
-          result = await searchProducts(searchParam);
-        } else {
-          result = await getProducts();
-        }
+        const offset = Number(searchParams.get("offset")) || 0;
+        const limit = 10;
+        const category = searchParams.get("category") || "";
+        const minPrice = searchParams.get("minPrice") || "";
+        const title = searchParams.get("title") || "";
+        const maxPrice = searchParams.get("maxPrice") || "";
+        const isInStock = searchParams.get("isInStock") || "";
+        const orderByPrice =
+          sort === "price-asc" ? 0 : sort === "price-desc" ? 1 : undefined;
+        const newest = sort === "newest" ? true : undefined;
+
+        const query = {
+          offset,
+          limit,
+          category,
+          minPrice,
+          maxPrice,
+          isInStock,
+          orderByPrice,
+          newest,
+          title,
+        };
+
+        const result = await getProducts(query);
 
         setProducts(result.data);
-        setFilteredProducts(result.data);
+        setCurrentPage(result.meta?.currentPage || 1);
+        setTotalNumberOfPages(result.meta?.totalPages || 1);
       } catch (err) {
         setError("Failed to load products");
         console.error("Error loading products:", err);
@@ -83,68 +115,38 @@ export default function ProductsPage() {
     }
 
     loadProducts();
-  }, [searchParam]);
+  }, [searchParams, sort]);
 
-  // Apply filters
-  useEffect(() => {
-    let filtered = [...products];
-
-    // Category filter
-    if (category) {
-      filtered = filtered.filter(
-        (product) => product.category.toLowerCase() === category.toLowerCase()
-      );
+  // Pagination handlers
+  const handleNextClick = () => {
+    if (currentPage < totalNumberOfPages) {
+      const newOffset = currentPage * 10; // assuming limit=10
+      const params = new URLSearchParams(searchParams);
+      params.set("offset", newOffset.toString());
+      setSearchParams(params);
     }
+  };
 
-    // Price range filter
-    filtered = filtered.filter(
-      (product) =>
-        product.price >= priceRange[0] && product.price <= priceRange[1]
-    );
-
-    // Availability filter
-    if (availableOnly) {
-      filtered = filtered.filter((product) => product.quantity > 0);
+  const handlePreviousClick = () => {
+    if (currentPage > 1) {
+      const newOffset = (currentPage - 2) * 10; // assuming limit=10
+      const params = new URLSearchParams(searchParams);
+      params.set("offset", newOffset.toString());
+      setSearchParams(params);
     }
-
-    // Sort
-    switch (sort) {
-      case "price-asc":
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      // Add other sort cases as needed
-    }
-
-    setFilteredProducts(filtered);
-  }, [products, category, priceRange, availableOnly, sort]);
+  };
 
   // Update URL params when filters change
   const applyFilters = async () => {
     const params = new URLSearchParams();
 
     if (category) params.set("category", category);
-    if (searchQuery) params.set("search", searchQuery);
+    if (searchQuery) params.set("title", searchQuery);
     if (sort !== "featured") params.set("sort", sort);
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
     if (priceRange[1] < 1500) params.set("maxPrice", priceRange[1].toString());
 
     setSearchParams(params);
-
-    if (searchQuery) {
-      try {
-        setLoading(true);
-        const results = await searchProducts(searchQuery);
-        setProducts(results.data);
-    } catch (err) {
-        setError("Failed to search products");
-        console.error("Error searching products:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
   };
 
   // Clear all filters
@@ -480,7 +482,7 @@ export default function ProductsPage() {
             <h1 className="text-2xl font-bold">
               Products
               <span className="text-muted-foreground text-lg font-normal ml-2">
-                ({filteredProducts.length} items)
+                ({products.length} items)
               </span>
             </h1>
 
@@ -531,7 +533,7 @@ export default function ProductsPage() {
                 </div>
               ))}
             </div>
-          ) : filteredProducts.length === 0 ? (
+          ) : products.length === 0 ? (
             <motion.div
               className="text-center py-12 bg-muted rounded-lg"
               initial={{ opacity: 0 }}
@@ -552,7 +554,7 @@ export default function ProductsPage() {
               transition={{ duration: 0.5 }}
             >
               <AnimatePresence>
-                {filteredProducts.map((product, index) => (
+                {products.map((product, index) => (
                   <motion.div
                     key={product.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -569,6 +571,16 @@ export default function ProductsPage() {
           )}
         </div>
       </div>
+      {totalNumberOfPages !== 0 && (
+        <div className="mt-5">
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalNumberOfPages}
+            onNextClick={handleNextClick}
+            onPreviousClick={handlePreviousClick}
+          />
+        </div>
+      )}
     </div>
   );
 }

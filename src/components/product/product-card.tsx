@@ -34,7 +34,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         className="block aspect-square overflow-hidden"
       >
         <motion.img
-          src={product.imageUrl}
+          src={product.imageUrl || 'https://cloud.anasroud.com/public/noImage.png'}
           alt={product.title}
           className="h-full w-full object-cover"
           initial={{ scale: 1 }}
