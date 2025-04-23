@@ -494,7 +494,7 @@ export default function CheckoutPage() {
                             >
                               <div className="h-16 w-16 rounded overflow-hidden bg-background flex-shrink-0">
                                 <img
-                                  src={item.product.imageUrl}
+                                  src={item.product.imageUrl || 'https://cloud.anasroud.com/public/noImage.png'}
                                   alt={item.product.title}
                                   className="h-full w-full object-cover"
                                 />

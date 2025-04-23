@@ -10,7 +10,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,7 @@ import {
   Menu,
   Package,
   LogOut,
+  User,
 } from "lucide-react";
 import { useAuth } from "react-oidc-context";
 import { useCart } from "@/contexts/cart-context";
@@ -126,7 +127,7 @@ export default function Header() {
           {/* Search, Cart, User */}
           <div className="flex items-center space-x-4">
             {/* Search */}
-  
+
             {/* Theme Toggle */}
             <ModeToggle />
 
@@ -159,8 +160,7 @@ export default function Header() {
                     className="relative h-8 w-8 rounded-full"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage alt={auth.user?.profile.name} />
-                      <AvatarFallback>{auth.user?.profile.name?.charAt(0)}</AvatarFallback>
+                      <User />
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>

@@ -47,7 +47,7 @@ export default function ProductDetailPage() {
   }
 
   // Dummy product images (in a real app these would come from the product data)
-  const productImages = [product.imageUrl];
+  const productImages = [product.imageUrl || 'https://cloud.anasroud.com/public/noImage.png'];
 
   const handleAddToCart = () => {
     addItem(product);

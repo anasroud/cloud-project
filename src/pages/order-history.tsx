@@ -104,7 +104,7 @@ export default function OrderHistoryPage() {
                       <div key={product.id} className="flex items-center">
                         <div className="h-16 w-16 rounded overflow-hidden bg-muted flex-shrink-0">
                           <img
-                            src={product.imageUrl}
+                            src={product.imageUrl || 'https://cloud.anasroud.com/public/noImage.png' }
                             alt={product.title}
                             className="h-full w-full object-cover"
                           />

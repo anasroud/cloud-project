@@ -25,7 +25,7 @@ export default function CartItem({ item }: CartItemProps) {
       <div className="h-20 w-20 rounded-md overflow-hidden bg-secondary flex-shrink-0">
         <Link to={`/products/${item.product.id}`}>
           <img
-            src={item.product?.imageUrl}
+            src={item.product?.imageUrl || 'https://cloud.anasroud.com/public/noImage.png'}
             alt={item.product?.title}
             className="h-full w-full object-cover"
           />
