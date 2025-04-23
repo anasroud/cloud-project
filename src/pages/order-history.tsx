@@ -82,7 +82,7 @@ export default function OrderHistoryPage() {
               0
             );
             const status = "delivered"; // Mock status
-            const createdAt = new Date(); // Mock createdAt
+            const orderedAt = order.orderedAt ? new Date(order.orderedAt) : new Date();
 
             return (
               <Card key={order.id}>
@@ -94,7 +94,7 @@ export default function OrderHistoryPage() {
                     </CardTitle>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4 mr-1" />
-                      {createdAt.toLocaleDateString()}
+                      {orderedAt.toLocaleDateString()}
                     </div>
                   </div>
                 </CardHeader>
@@ -112,8 +112,7 @@ export default function OrderHistoryPage() {
                         <div className="ml-4 flex-1">
                           <p className="font-medium">{product.title}</p>
                           <div className="flex justify-between text-sm text-muted-foreground">
-                            <p>Qty: {product.quantity}</p>
-                            <p>{formatCurrency(product.price * product.quantity)}</p>
+                            <p>{formatCurrency(product.price)}</p>
                           </div>
                         </div>
                       </div>

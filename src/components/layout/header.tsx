@@ -304,29 +304,9 @@ export default function Header() {
                           className="w-full justify-start"
                           asChild
                         >
-                          <Link to="/profile">
-                            <User className="mr-2 h-4 w-4" />
-                            Profile
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start"
-                          asChild
-                        >
-                          <Link to="/profile/orders">
+                          <Link to="/orders">
                             <Package className="mr-2 h-4 w-4" />
                             Orders
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start"
-                          asChild
-                        >
-                          <Link to="/profile/wishlist">
-                            <Heart className="mr-2 h-4 w-4" />
-                            Wishlist
                           </Link>
                         </Button>
                         <Button

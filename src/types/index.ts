@@ -37,8 +37,8 @@ export interface Order {
   userId: string;
   productIds: string[];
   products: Product[];
+  orderedAt: string | Date; // Accepts either ISO string or parsed Date object
 }
-
 
 export interface User {
   id: string;
