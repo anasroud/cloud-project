@@ -115,7 +115,7 @@ export default function Header() {
                             "font-semibold text-primary"
                         )}
                       >
-                        All Products
+                        All Products 123
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
