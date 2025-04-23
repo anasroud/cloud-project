@@ -210,7 +210,7 @@ export default function Header() {
                 variant="outline"
                 size="sm"
                 asChild
-                className="hidden sm:flex"
+                className="hidden sm:flex cursor-pointer"
                 onClick={() => auth.signinRedirect()}
               >
                 <div>Sign In</div>
