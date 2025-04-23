@@ -4,10 +4,14 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowRight, Tag, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
+import { toast } from "sonner";
+import api from "@/lib/api";
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,6 +20,41 @@ export default function HomePage() {
     }
   };
 
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+  
+    setIsSubscribing(true);
+    const loadingToast = toast.loading("Subscribing to newsletter...");
+  
+    try {
+      await api.post('/sub', { email: email });
+  
+      toast.dismiss(loadingToast);
+      toast.success("Successfully subscribed!", {
+        description: "Please check your email to confirm your subscription."
+      });
+      setEmail("");
+    } catch (error: any) {
+      console.error('Subscription error:', error);
+      toast.dismiss(loadingToast);
+      toast.error("Failed to subscribe", {
+        description: error?.response?.data?.error || error.message || "Please try again later."
+      });
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+  
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -129,23 +168,30 @@ export default function HomePage() {
               loading="lazy"
             />
             <div className="absolute inset-0 bg-black/40" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white ">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Subscribe to Our Newsletter
               </h2>
               <p className="mt-4 max-w-2xl text-lg">
                 Get the latest updates on new products and special offers.
               </p>
-              <div className="mt-10 flex w-full max-w-md gap-4">
+              <form onSubmit={handleSubscribe} className="mt-10 flex w-full max-w-md gap-4">
                 <Input
                   type="email"
                   placeholder="Enter your email"
                   className="flex-1 bg-white/10 backdrop-blur-sm"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubscribing}
                 />
-                <Button className="bg-white text-black hover:bg-white/90">
-                  Subscribe
+                <Button 
+                  type="submit"
+                  className="bg-white text-black hover:bg-white/90"
+                  disabled={isSubscribing}
+                >
+                  {isSubscribing ? "Subscribing..." : "Subscribe"}
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
         </div>

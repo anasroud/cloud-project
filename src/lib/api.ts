@@ -130,3 +130,6 @@ export const updateOrderStatus = async (
   });
   return response.data;
 };
+
+
+export default api;
