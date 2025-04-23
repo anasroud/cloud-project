@@ -25,9 +25,7 @@ import { motion } from "framer-motion";
 import {
   Search,
   ShoppingCart,
-  User,
   Menu,
-  Heart,
   Package,
   LogOut,
 } from "lucide-react";
