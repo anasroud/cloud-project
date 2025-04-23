@@ -90,7 +90,7 @@ export async function removeFromCart(
 }
 
 // Orders
-export const getOrders = async (token: string): Promise<ApiResponse<Order[]>> => {
+export const getOrders = async (token: string): Promise<ApiResponse<{ userId: string; orders: Order[] }>> => {
   const response = await api.get('/orders', {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -98,6 +98,7 @@ export const getOrders = async (token: string): Promise<ApiResponse<Order[]>> =>
   });
   return response.data;
 };
+
 
 export const createOrder = async (token: string, productIds: string[]): Promise<ApiResponse<Order>> => {
   const response = await api.post('/orders', { productIds }, {

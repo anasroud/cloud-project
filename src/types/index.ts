@@ -35,12 +35,10 @@ export interface OrderItem {
 export interface Order {
   id: string;
   userId: string;
-  items: OrderItem[];
-  totalPrice: number;
-  status: "pending" | "processing" | "shipped" | "delivered";
-  createdAt: string;
-  updatedAt: string;
+  productIds: string[];
+  products: Product[];
 }
+
 
 export interface User {
   id: string;

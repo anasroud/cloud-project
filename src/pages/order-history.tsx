@@ -8,25 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, Calendar, Package, CheckCircle } from "lucide-react";
 import { getOrders } from "@/lib/api";
-
-interface OrderItem {
-  id: string;
-  product: {
-    id: string;
-    title: string;
-    price: number;
-    imageUrl: string;
-    quantity: number;
-  };
-}
-
-interface Order {
-  id: string;
-  items: OrderItem[];
-  totalPrice: number;
-  status: "pending" | "processing" | "shipped" | "delivered";
-  createdAt: string;
-}
+import { Order } from "@/types";
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -38,7 +20,7 @@ export default function OrderHistoryPage() {
     const fetchOrders = async () => {
       try {
         const response = await getOrders(auth.user?.id_token || '');
-        setOrders(response.data);
+        setOrders(response.data.orders);
       } catch (error) {
         console.error('Error fetching orders:', error);
       } finally {
@@ -94,62 +76,66 @@ export default function OrderHistoryPage() {
       >
         <h1 className="text-3xl font-bold mb-8">Order History</h1>
         <div className="space-y-6">
-          {orders.map((order) => (
-            <Card key={order.id}>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="flex items-center">
-                    <Package className="h-5 w-5 mr-2" />
-                    Order #{order.id.slice(0, 8)}
-                  </CardTitle>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {new Date(order.createdAt).toLocaleDateString()}
+          {orders.map((order) => {
+            const totalPrice = order.products.reduce(
+              (sum, product) => sum + product.price * product.quantity,
+              0
+            );
+            const status = "delivered"; // Mock status
+            const createdAt = new Date(); // Mock createdAt
+
+            return (
+              <Card key={order.id}>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="flex items-center">
+                      <Package className="h-5 w-5 mr-2" />
+                      Order #{order.id.slice(0, 8)}
+                    </CardTitle>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {createdAt.toLocaleDateString()}
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center">
-                      <div className="h-16 w-16 rounded overflow-hidden bg-muted flex-shrink-0">
-                        <img
-                          src={item.product.imageUrl}
-                          alt={item.product.title}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="ml-4 flex-1">
-                        <p className="font-medium">{item.product.title}</p>
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <p>Qty: {item.product.quantity}</p>
-                          <p>{formatCurrency(item.product.price * item.product.quantity)}</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {order.products.map((product) => (
+                      <div key={product.id} className="flex items-center">
+                        <div className="h-16 w-16 rounded overflow-hidden bg-muted flex-shrink-0">
+                          <img
+                            src={product.imageUrl}
+                            alt={product.title}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="ml-4 flex-1">
+                          <p className="font-medium">{product.title}</p>
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <p>Qty: {product.quantity}</p>
+                            <p>{formatCurrency(product.price * product.quantity)}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                  <Separator />
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <CheckCircle className={`h-5 w-5 mr-2 ${
-                        order.status === 'delivered' ? 'text-green-500' :
-                        order.status === 'shipped' ? 'text-blue-500' :
-                        order.status === 'processing' ? 'text-yellow-500' :
-                        'text-gray-500'
-                      }`} />
-                      <span className="capitalize">{order.status}</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">Total</p>
-                      <p className="text-lg font-semibold">{formatCurrency(order.totalPrice)}</p>
+                    ))}
+                    <Separator />
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <CheckCircle className={`h-5 w-5 mr-2 text-green-500`} />
+                        <span className="capitalize">{status}</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground">Total</p>
+                        <p className="text-lg font-semibold">{formatCurrency(totalPrice)}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </motion.div>
     </div>
   );
-} 
+}
