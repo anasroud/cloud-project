@@ -121,7 +121,7 @@ export const getOrder = async (token: string, orderId: string): Promise<ApiRespo
 export const updateOrderStatus = async (
   token: string,
   orderId: string,
-  status: Order['status']
+  status: Order[]
 ): Promise<ApiResponse<Order>> => {
   const response = await api.patch(`/orders/${orderId}`, { status }, {
     headers: {

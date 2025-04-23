@@ -13,10 +13,8 @@ import OrderHistoryPage from "@/pages/order-history";
 import CallbackPage from "@/pages/callback";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import { useAuth } from "react-oidc-context";
 
 function AppContent() {
-  const auth = useAuth();
   return (
     <BrowserRouter>
       <Suspense

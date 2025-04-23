@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getCategories, getProducts, searchProducts } from "@/lib/api";
+import { getCategories, getProducts } from "@/lib/api";
 import ProductCard from "@/components/product/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
