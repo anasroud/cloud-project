@@ -159,7 +159,7 @@ export default function Header() {
                     size="icon"
                     className="relative h-8 w-8 rounded-full"
                   >
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-8 w-8 justify-center items-center">
                       <User />
                     </Avatar>
                   </Button>
