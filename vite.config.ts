@@ -62,7 +62,7 @@ export default defineConfig({
   },
   define: {
     'process.env': {
-      VITE_API_URL: 'api.cloud.anasroud.com',
+      VITE_API_URL: '"https://cloud.anasroud.com/api";',
     },
     global: 'globalThis',
   },

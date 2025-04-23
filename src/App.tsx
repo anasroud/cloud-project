@@ -13,10 +13,12 @@ import OrderHistoryPage from "@/pages/order-history";
 import CallbackPage from "@/pages/callback";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import ScrollToTop from "./components/ScrollToTop";
 
 function AppContent() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense
         fallback={
           <div className="flex h-screen w-full items-center justify-center">
