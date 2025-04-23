@@ -3,23 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowRight, Tag, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
+import {ArrowRight, Tag, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
+  
   const [email, setEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
-    }
-  };
-
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
