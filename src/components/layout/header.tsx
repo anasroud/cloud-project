@@ -125,28 +125,10 @@ export default function Header() {
             </div>
           </div>
           {/* Logo */}
-
           {/* Search, Cart, User */}
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <form onSubmit={handleSearch} className="hidden md:flex relative">
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="w-[200px] lg:w-[300px]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button
-                type="submit"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
-            </form>
-
+  
             {/* Theme Toggle */}
             <ModeToggle />
 
