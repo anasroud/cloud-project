@@ -123,6 +123,7 @@ export default function ProductsPage() {
       const newOffset = currentPage * 10; // assuming limit=10
       const params = new URLSearchParams(searchParams);
       params.set("offset", newOffset.toString());
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setSearchParams(params);
     }
   };
@@ -132,6 +133,7 @@ export default function ProductsPage() {
       const newOffset = (currentPage - 2) * 10; // assuming limit=10
       const params = new URLSearchParams(searchParams);
       params.set("offset", newOffset.toString());
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setSearchParams(params);
     }
   };
