@@ -85,19 +85,6 @@ export default function HomePage() {
             <p className="text-lg mb-8 pt-{8rem}">
               Explore our curated collection of premium products designed to enhance your everyday experiences
             </p>
-            <form onSubmit={handleSearch} className="flex gap-2 mb-8">
-              <Input
-                type="search"
-                placeholder="What are you looking for?"
-                className="bg-white/10 backdrop-blur-sm border-white/20 text-white placeholder:text-white/70"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button type="submit" size="lg">
-                <Search className="mr-2 h-4 w-4" />
-                Search
-              </Button>
-            </form>
             <div className="flex flex-wrap gap-4">
               <Button 
                 size="lg" 
